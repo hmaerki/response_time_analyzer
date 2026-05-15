@@ -6,12 +6,8 @@ import machine
 import micropython
 import time
 
-# Update these pins to match your wiring.
 GPIO_STIMULI = "GPIO0"
 GPIO_RESPONSE = "GPIO1"
-
-# Keep this small for near-minimum latency.
-PULSE_SPIN = 20
 
 
 micropython.alloc_emergency_exception_buf(100)
@@ -29,6 +25,3 @@ def on_stimulus(_: machine.Pin) -> None:
 stimuli.irq(trigger=machine.Pin.IRQ_RISING, handler=on_stimulus, hard=True)
 
 print("response_simulator_isr_hard running")
-
-while True:
-    pass

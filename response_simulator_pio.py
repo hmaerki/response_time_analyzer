@@ -6,7 +6,6 @@ import machine
 import rp2
 
 
-# Update these pins to match your wiring.
 GPIO_STIMULI = "GPIO0"
 GPIO_RESPONSE = "GPIO1"
 
@@ -38,6 +37,3 @@ sm = rp2.StateMachine(
 sm.active(1)
 
 print("response_simulator_pio running")
-
-while True:
-    pass

@@ -6,7 +6,6 @@ import machine
 import time
 
 
-# Update these pins to match your wiring.
 GPIO_STIMULI = "GPIO0"
 GPIO_RESPONSE = "GPIO1"
 
@@ -24,7 +23,3 @@ def on_stimulus(_: machine.Pin) -> None:
 stimuli.irq(trigger=machine.Pin.IRQ_RISING, handler=on_stimulus, hard=False)
 
 print("response_simulator_isr_soft running")
-
-while True:
-    response.value(0)
-    pass

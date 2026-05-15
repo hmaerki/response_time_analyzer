@@ -1,6 +1,6 @@
 # Metadata
 bin_width_s: 8.0ns
-total_count: 106518
+total_count: 106513
 
 # bin-index, time, count
-03 3.20e-08s 106518
+03 3.20e-08s 106513

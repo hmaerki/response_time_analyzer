@@ -28,23 +28,23 @@ sequenceDiagram
 
 ## Response time test results
 
-**MicroPython interrupt service routine 'soft'**
+### MicroPython interrupt service routine 'soft'
 
 ![](testresults/response_simulator_isr_soft.svg)
 [Dataset](testresults/response_simulator_isr_soft.txt),
 [Source](response_simulator_isr_soft.py)
 
-The response time is typically 24 us, but may be up to 64 us (garbage collector?).
+The response time is typically 24 us, but may be up to 85 us (garbage collector?).
 
-**MicroPython interrupt service routine 'hard'**
+### MicroPython interrupt service routine 'hard'
 
 ![](testresults/response_simulator_isr_hard.svg)
 [Dataset](testresults/response_simulator_isr_hard.txt),
 [Source](response_simulator_isr_hard.py)
 
-The response time is typically 16 us, but may be up to 64 us (garbage collector?).
+The response time is typically 16 us, but may be up to 70 us (garbage collector?).
 
-**MicroPython PIO**
+### MicroPython PIO
 
 ![](testresults/response_simulator_pio.svg)
 [Dataset](testresults/response_simulator_pio.txt),

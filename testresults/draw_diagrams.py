@@ -52,9 +52,10 @@ def create_diagram(data: dict, filename: str) -> alt.Chart:
     bin_width_s_str = data['metadata']["bin_width_s"]
     bin_width_s = float(bin_width_s_str.replace("ns", "")) * 1e-9
 
+    duration_max_s = data["bins"][0] * bin_width_s
     factor = 1e6
     time_unit = "us"
-    if bin_width_s < 1e-07:
+    if duration_max_s < 1e-06:
         factor = 1e9
         time_unit = "ns"
     time_x = [bin * bin_width_s * factor for bin in data["bins"]]
