@@ -1,0 +1,12 @@
+# Metadata
+bin_width_s: 8.0ns
+total_count: 106299
+
+# bin-index, time, count
+51 4.16e-07s 27
+50 4.08e-07s 538
+49 4.00e-07s 14278
+48 3.92e-07s 15540
+47 3.84e-07s 18952
+46 3.76e-07s 20184
+45 3.68e-07s 36780
