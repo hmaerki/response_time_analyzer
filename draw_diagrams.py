@@ -7,12 +7,15 @@ For each file:
   * save diagram as svg
 """
 
-from pathlib import Path
-import pandas as pd
-import altair as alt
+import pathlib
+
+import altair
+import pandas
+
+DIRECTORY_OF_THIS_FILE = pathlib.Path(__file__).parent
 
 
-def parse_histogram_file(filepath: Path) -> dict:
+def parse_histogram_file(filepath: pathlib.Path) -> dict:
     """Parse a histogram data file and return bins, counts, and metadata."""
     bins = []
     counts = []
@@ -46,10 +49,10 @@ def parse_histogram_file(filepath: Path) -> dict:
     }
 
 
-def create_diagram(data: dict, filename: str) -> alt.Chart:
+def create_diagram(data: dict, filename: str) -> altair.Chart:
     """Create an Altair histogram chart from bin data."""
     # Parse bin width and convert to nanoseconds
-    bin_width_s_str = data['metadata']["bin_width_s"]
+    bin_width_s_str = data["metadata"]["bin_width_s"]
     bin_width_s = float(bin_width_s_str.replace("ns", "")) * 1e-9
 
     duration_max_s = data["bins"][0] * bin_width_s
@@ -60,14 +63,14 @@ def create_diagram(data: dict, filename: str) -> alt.Chart:
         time_unit = "ns"
     time_x = [bin * bin_width_s * factor for bin in data["bins"]]
 
-    df = pd.DataFrame({f"time_{time_unit}": time_x, "count": data["counts"]})
+    df = pandas.DataFrame({f"time_{time_unit}": time_x, "count": data["counts"]})
 
     chart = (
-        alt.Chart(df)
+        altair.Chart(df)
         .mark_bar()
         .encode(
-            x=alt.X(f"time_{time_unit}:Q", title=f"Response Time ({time_unit})"),
-            y=alt.Y("count:Q", title="Count"),
+            x=altair.X(f"time_{time_unit}:Q", title=f"Response Time ({time_unit})"),
+            y=altair.Y("count:Q", title="Count"),
         )
         .properties(
             width=800,
@@ -80,10 +83,8 @@ def create_diagram(data: dict, filename: str) -> alt.Chart:
     return chart
 
 
-def main():
-    testdata_dir = Path(__file__).parent
-
-    for txt_file in sorted(testdata_dir.glob("response_simulator_*.txt")):
+def main() -> None:
+    for txt_file in sorted(DIRECTORY_OF_THIS_FILE.glob("*/response_simulator_*.txt")):
         print(f"Processing {txt_file.name}...")
 
         # Parse file
