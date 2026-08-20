@@ -107,7 +107,9 @@ def create_diagram(histogram: Histogram, filename: str) -> altair.Chart:
         .encode(
             x=altair.X(f"{time_field}:Q", title=f"Response Time ({time_unit})"),
             y=altair.Y(
-                "count:Q", title="Count", scale=altair.Scale(type="log", domainMin=0.9)
+                "count:Q",
+                title="Count",
+                scale=altair.Scale(type="log", domainMin=0.9),
             ),
         )
         .properties(
