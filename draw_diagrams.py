@@ -7,6 +7,9 @@ For each file:
   * save diagram as svg
 """
 
+from __future__ import annotations
+
+import dataclasses
 import pathlib
 
 import altair
@@ -15,17 +18,48 @@ import pandas
 DIRECTORY_OF_THIS_FILE = pathlib.Path(__file__).parent
 
 
-def parse_histogram_file(filepath: pathlib.Path) -> dict:
+@dataclasses.dataclass(frozen=True)
+class Metadata:
+    bin_width_s: float
+    total_count: int
+
+    @staticmethod
+    def factory(metadata: dict[str, str]) -> Metadata:
+        bin_width_s_str = metadata["bin_width_s"]
+        assert bin_width_s_str.endswith("ns")
+        bin_width_s = float(bin_width_s_str.replace("ns", "")) * 1e-9
+
+        total_count = int(metadata["total_count"])
+
+        return Metadata(
+            bin_width_s=bin_width_s,
+            total_count=total_count,
+        )
+
+
+@dataclasses.dataclass(frozen=True)
+class Histogram:
+    bins: list[int]
+    counts: list[int]
+    metadata: Metadata
+
+    @property
+    def duration_max_s(self) -> float:
+        return self.bins[0] * self.metadata.bin_width_s
+
+
+def parse_histogram_file(filepath: pathlib.Path) -> Histogram:
     """Parse a histogram data file and return bins, counts, and metadata."""
-    bins = []
-    counts = []
-    metadata = {}
+    bins: list[int] = []
+    counts: list[int] = []
+    metadata: dict[str, str] = {}
 
     with filepath.open("r") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
+
             if line.startswith("#"):
                 continue
 
@@ -35,35 +69,32 @@ def parse_histogram_file(filepath: pathlib.Path) -> dict:
                 key = key.strip()
                 value = value.strip()
                 metadata[key] = value
-            else:
-                # Parse bin/count pairs
-                parts = line.split()
-                if len(parts) == 3:
-                    bins.append(int(parts[0]))
-                    counts.append(int(parts[2]))
+                continue
 
-    return {
-        "bins": bins,
-        "counts": counts,
-        "metadata": metadata,
-    }
+            # Parse bin/count pairs
+            parts = line.split()
+            if len(parts) == 3:
+                bins.append(int(parts[0]))
+                counts.append(int(parts[2]))
+
+    return Histogram(
+        bins=bins,
+        counts=counts,
+        metadata=Metadata.factory(metadata),
+    )
 
 
-def create_diagram(data: dict, filename: str) -> altair.Chart:
+def create_diagram(histogram: Histogram, filename: str) -> altair.Chart:
     """Create an Altair histogram chart from bin data."""
     # Parse bin width and convert to nanoseconds
-    bin_width_s_str = data["metadata"]["bin_width_s"]
-    bin_width_s = float(bin_width_s_str.replace("ns", "")) * 1e-9
-
-    duration_max_s = data["bins"][0] * bin_width_s
     factor = 1e6
     time_unit = "us"
-    if duration_max_s < 1e-06:
+    if histogram.duration_max_s < 1e-06:
         factor = 1e9
         time_unit = "ns"
-    time_x = [bin * bin_width_s * factor for bin in data["bins"]]
+    time_x = [bin * histogram.metadata.bin_width_s * factor for bin in histogram.bins]
 
-    df = pandas.DataFrame({f"time_{time_unit}": time_x, "count": data["counts"]})
+    df = pandas.DataFrame({f"time_{time_unit}": time_x, "count": histogram.counts})
 
     chart = (
         altair.Chart(df)
@@ -75,8 +106,8 @@ def create_diagram(data: dict, filename: str) -> altair.Chart:
         .properties(
             width=800,
             height=400,
-            title=f"{filename}: bin_width_s={data['metadata']['bin_width_s']}, "
-            f"{data['metadata']['total_count']} measurements",
+            title=f"{filename}: bin_width_s={histogram.metadata.bin_width_s}, "
+            f"{histogram.metadata.total_count} measurements",
         )
     )
 
