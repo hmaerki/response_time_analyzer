@@ -13,7 +13,6 @@ import dataclasses
 import pathlib
 
 import altair
-import pandas
 
 DIRECTORY_OF_THIS_FILE = pathlib.Path(__file__).parent
 
@@ -94,14 +93,22 @@ def create_diagram(histogram: Histogram, filename: str) -> altair.Chart:
         time_unit = "ns"
     time_x = [bin * histogram.metadata.bin_width_s * factor for bin in histogram.bins]
 
-    df = pandas.DataFrame({f"time_{time_unit}": time_x, "count": histogram.counts})
+    time_field = f"time_{time_unit}"
+    data = [
+        {time_field: time_value, "count": count}
+        for time_value, count in zip(time_x, histogram.counts, strict=True)
+        if count > 0
+    ]
 
     chart = (
-        altair.Chart(df)
-        .mark_bar()
+        altair.Chart(altair.Data(values=data))
+        # .mark_bar()
+        .mark_point(filled=True, radius=2)
         .encode(
-            x=altair.X(f"time_{time_unit}:Q", title=f"Response Time ({time_unit})"),
-            y=altair.Y("count:Q", title="Count"),
+            x=altair.X(f"{time_field}:Q", title=f"Response Time ({time_unit})"),
+            y=altair.Y(
+                "count:Q", title="Count", scale=altair.Scale(type="log", domainMin=0.9)
+            ),
         )
         .properties(
             width=800,

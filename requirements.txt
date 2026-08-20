@@ -1,3 +1,2 @@
 mpremote>=1.25.0
 altair[save]
-pandas
